@@ -11,5 +11,5 @@ Runs in R v3.1 and requires the following libraries:
 - ggplot2 (from CRAN)
 - gridExtra (from CRAN)
 
-In Helsinki, August 2015
+In London, February 2016
 Tommi Tervonen
