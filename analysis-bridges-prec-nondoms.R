@@ -49,7 +49,7 @@ make.analysis <- function(type) { # 'prefs' or 'noprefs'
   
   proj.info <- cbind(projects, w.ok.opts, cind.popt, cind.nd)
   
-  list(proj=proj.info, nd=nd, popt.pfs=pot.opts)
+  list(proj=proj.info, nd=nd, popt.pfs=pot.opts, w=samples)
 }
 
 out.projs <- c(17, 1, 3, 6, 8, 18, 20, 28)
@@ -82,7 +82,6 @@ res.all <- cbind(res.all, t(res.prefs$nd[res.xout1$popt.pfs,]))
 ## Order re: acceptabilities
 res.all <- res.all[order(res.all[,7], decreasing=TRUE),]
 res.cols <- c(cnames[1:n], rep(c('AI', 'CI'), 4), '$p^1$', '$p^2$', '$p^3$')
-colnames(res.all) <- res.cols
 acc.ci <- res.all[,-(1:6)]
 
 acc.ci.flt <- do.call(cbind, llply(1:4, function(idx) {
@@ -105,7 +104,7 @@ df$x2 <- factor(df$x, rev(as.character(df$x)))
 
 theme_set(theme_grey(base_size = 8))
 
-pdf('caseres.pdf')
+pdf('../caseres.pdf')
 pa1 <- ggplot(data=df, aes(x=x2, y=a1, fill=NULL)) + geom_bar(stat='identity') + coord_flip() + ylab(bquote(AI(x^k, W^0))) + xlab(bquote(x^k)) + ylim(0, 1) + theme(axis.text.y=element_text(size=4, face='plain'))
 pa2 <- ggplot(data=df, aes(x=x2, y=a2, fill=NULL)) + geom_bar(stat='identity') + coord_flip() + ylab(bquote(AI(x^k, W^1))) + xlab(bquote(x^k)) + ylim(0, 1) + theme(axis.text.y=element_text(size=4, face='plain'))
 pa3 <- ggplot(data=df, aes(x=x2, y=a3, fill=NULL)) + geom_bar(stat='identity') + coord_flip() + ylab(bquote(AI(x^k, W^2))) + xlab(bquote(x^k)) + ylim(0, 1) + theme(axis.text.y=element_text(size=4, face='plain'))
@@ -124,7 +123,7 @@ data.align <- c('rcccccccc')
 res.align <- c('rcccccc|cc|cc|cc|cc|ccc')
 
 ## Write to latex
-sink('results.tex')
+sink('../results.tex')
 print(xtable(res.all.flt, label='results', digits=res.digits, align=res.align,
              caption=paste0("Project criteria measurements, acceptability (AI) and core indices (CI) for core- and borderline projects in 4 iterations of the analysis: without weight information, with linear weight constraints, and with addition of project preference statements In($x^{45}$) and Out($",
                paste0('x^{', out.projs, '}', collapse=', '),
@@ -134,9 +133,50 @@ print(xtable(res.all.flt, label='results', digits=res.digits, align=res.align,
       caption.placement='top')
 sink(NULL)
 
-sink('bridges.tex')
+sink('../bridges.tex')
 print(xtable(projects, digits=data.digits, align=data.align,
              caption="Bridge criteria measurements, costs, and DPS reductions"),
       latex.environments=c('tiny', 'center'),
       caption.placement='top')
+sink(NULL)
+
+## Weight information ##
+w.info <- function(oper) {
+    res <- rbind(aaply(res.noprefs$w, 2, oper),
+                 aaply(res.prefs$w, 2, oper),
+                 aaply(res.xin1$w, 2, oper),
+                 aaply(res.xout1$w, 2, oper))
+    colnames(res) <- cnames[1:ncol(res)]
+    rownames(res) <- c('$W^0$', '$W^1$', '$W^2$', '$W^3$')
+    res
+}
+
+w.mins <- w.info(min)
+w.maxs <- w.info(max)
+w.avgs <- w.info(mean)
+
+w.digits <- c(0,rep(2,6))
+
+sink('../w.mins.tex')
+print(xtable(w.mins, label='w.mins', digits=w.digits, align=c('lcccccc'),
+             caption="Minimums of weight samples in 4 iterations of the analysis."),
+      latex.environments=c('tiny', 'center'),
+      caption.placement='top',
+      sanitize.text.function=identity)
+sink(NULL)
+
+sink('../w.maxs.tex')
+print(xtable(w.maxs, label='w.maxs', digits=w.digits, align=c('lcccccc'),
+             caption="Maximums of weight samples in 4 iterations of the analysis."),
+      latex.environments=c('tiny', 'center'),
+      caption.placement='top',
+      sanitize.text.function=identity)
+sink(NULL)
+
+sink('../w.avgs.tex')
+print(xtable(w.avgs, label='w.avgs', digits=w.digits, align=c('lcccccc'),
+             caption="Averages of weight samples in 4 iterations of the analysis."),
+      latex.environments=c('tiny', 'center'),
+      caption.placement='top',
+      sanitize.text.function=identity)
 sink(NULL)

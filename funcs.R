@@ -69,5 +69,5 @@ analysis.pp <- function(proj.perfs, res.prev, x.in, x.out, w.constr) {
   acc <- comp.acc(res.prev$nd, w, proj.perfs)
   res <- estimate.ci(res.prev$nd, w, proj.perfs)
 
-  list(acc=acc, ci=res$ci, popt.pfs=res$popt.pfs)
+  list(acc=acc, ci=res$ci, popt.pfs=res$popt.pfs, w=w)
 }
